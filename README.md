@@ -1,50 +1,56 @@
+**English** | [简体中文](README.zh-CN.md)
+
 # GammaPanel X
 
-经典 [Gamma Panel](https://gammapanel.en.softonic.com/) 的现代复刻版，核心改进：**每台显示器可以单独选择、单独调节**（原版只作用于主显示器）。
+A modern remake of the classic [Gamma Panel](https://gammapanel.en.softonic.com/), with one key improvement: **every monitor can be selected and adjusted independently** (the original only affected the primary display).
 
-绿色单文件程序，无需安装，无需 .NET SDK / 运行库（使用 Windows 自带的 .NET Framework 4.x）。
+Portable single-file app — no installer, no .NET SDK or runtime downloads (uses the .NET Framework 4.x that ships with Windows).
 
-## 功能
+> Note: the UI is currently in Simplified Chinese.
 
-| 功能 | 说明 |
-|------|------|
-| 软件调节 (Gamma LUT) | 亮度 / 对比度 / 伽马，写入显卡的每显示器查找表，立即生效 |
-| RGB 通道独立调节 | 与原版一致：可联动调整，也可单独调红/绿/蓝通道（可做简易色温校正） |
-| 硬件调节 (DDC/CI) | 直接控制显示器面板的亮度 / 对比度 / **饱和度**（需显示器支持 DDC/CI） |
-| 多显示器独立 | 左侧列表选择目标显示器，每台的设置独立保存；也可勾选"同步调节所有显示器" |
-| 配置文件 + 全局热键 | 保存多套全屏配置（如"白天/夜晚/游戏"），绑定热键一键切换 |
-| 曲线预览 | 实时显示当前 Gamma 曲线 |
-| 托盘运行 | 关闭按钮最小化到托盘；托盘菜单可直接切换配置文件 |
-| 防重置 | 可选"定时重新应用"，防止游戏或驱动重置色彩；睡眠唤醒/解锁/分辨率变化后自动恢复 |
-| 开机启动 | 一个勾选框，启动时自动恢复上次设置 |
+## Download
 
-## 构建
+Grab `GammaPanelX.exe` from the [Releases](../../releases) page and double-click to run.
+
+## Features
+
+| Feature | Description |
+|---------|-------------|
+| Software adjustment (gamma LUT) | Brightness / contrast / gamma written to the GPU's per-monitor lookup table, applied instantly |
+| Independent RGB channels | Like the original: adjust channels linked, or tune red/green/blue separately (handy for quick color-temperature tweaks) |
+| Hardware adjustment (DDC/CI) | Drives the monitor panel's own brightness / contrast / **saturation** (requires DDC/CI support) |
+| Per-monitor control | Pick a target monitor from the list; each monitor's settings are saved independently. An optional "sync all monitors" mode is available |
+| Profiles + global hotkeys | Save multiple full setups (e.g. Day / Night / Gaming) and switch with a single hotkey |
+| Curve preview | Live plot of the current gamma curves |
+| Tray app | Close button minimizes to tray; switch profiles straight from the tray menu |
+| Reset protection | Optional periodic re-apply to survive games or drivers resetting colors; auto-restores after sleep/resume, unlock, and resolution changes |
+| Run at startup | One checkbox; last settings are restored automatically on launch |
+
+## Building
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File build.ps1
-# 产物: build\GammaPanelX.exe
+# Output: build\GammaPanelX.exe
 ```
 
-## 使用提示
+No .NET SDK required — it compiles with the `csc.exe` bundled with Windows (which is why the source sticks to C# 5 syntax).
 
-- **识别显示器**：点击"识别显示器"会在每块屏幕中央闪现编号，对应列表中的 DISPLAY 编号。
-- **饱和度**为什么在"硬件调节"区？Gamma 查找表是单通道映射，物理上无法实现饱和度（需要跨通道混色）。所以饱和度通过 DDC/CI 协议直接写显示器硬件，效果等同于在显示器 OSD 菜单里调。显示器若不支持会显示提示（笔记本内屏通常不支持）。
-- **极端数值不生效？** Windows 默认限制 Gamma LUT 的范围（防止屏幕全黑/全白）。点击界面里的"解除 Windows Gamma 范围限制"链接（写入注册表 `GdiIcmGammaRange=256`，需管理员，注销后生效）。
-- **与 Windows 夜间模式 / f.lux 的关系**：两者都写 Gamma LUT，互相覆盖。首次运行（所有设置为默认值）时本程序不会主动写 LUT，不会破坏夜间模式；一旦你调整了某台显示器，该显示器的 LUT 以本程序为准。
-- 设置保存在 `%APPDATA%\GammaPanelX\settings.json`，按显示器硬件 ID 记忆，调换接口/重新插拔不会错乱。
-- 退出时通过托盘菜单可选择"保留当前色彩"或"恢复默认色彩"。
+## Tips
 
-## 下载
+- **Identify monitors**: the "identify" button flashes a number in the center of each screen, matching the DISPLAY numbers in the list.
+- **Why is saturation under "hardware adjustment"?** A gamma LUT is a per-channel mapping and physically cannot change saturation (that requires cross-channel mixing). So saturation is written to the monitor hardware over DDC/CI — equivalent to changing it in the monitor's OSD menu. Unsupported monitors show a notice (built-in laptop panels usually don't support it).
+- **Extreme values do nothing?** Windows clamps gamma LUT ranges by default (to prevent an all-black/all-white screen). Click the "unlock Windows gamma range limit" link in the app (writes `GdiIcmGammaRange=256` to the registry; requires admin, takes effect after sign-out).
+- **Windows Night Light / f.lux**: both write gamma LUTs, so they override each other. On first run (all settings at defaults) this app does not touch the LUT, so Night Light keeps working; once you adjust a monitor, this app owns that monitor's LUT.
+- Settings live in `%APPDATA%\GammaPanelX\settings.json`, keyed by monitor hardware ID — swapping ports or replugging won't mix up your configs.
+- On exit, the tray menu lets you either keep the current colors or restore defaults.
 
-到 [Releases](../../releases) 页面下载 `GammaPanelX.exe`，双击即用（依赖 Windows 自带的 .NET Framework 4.x，无需安装任何东西）。
+## Technical notes
 
-## 技术说明
+- Per-monitor gamma: `CreateDC("\\.\DISPLAYn")` + `SetDeviceGammaRamp` (gdi32) — each output gets its own LUT.
+- DDC/CI: `dxva2.dll` Monitor Configuration API, VCP codes 0x10 (brightness) / 0x12 (contrast) / 0x8A (saturation).
+- Formula (same family as the original): `v = ((i/255)^(1/γ) − 0.5) × (contrast+100)/100 + 0.5 + brightness/200`, generating a 256-entry LUT per channel.
+- Baseline protection: on startup the current LUT of each monitor is captured as a baseline and adjustments are composed on top of it — "reset" restores the system's ICC/vcgt calibration exactly instead of writing a linear ramp.
 
-- 每显示器 Gamma：`CreateDC("\\.\DISPLAYn")` + `SetDeviceGammaRamp`（gdi32），各输出独立 LUT。
-- DDC/CI：`dxva2.dll` Monitor Configuration API，VCP 代码 0x10(亮度) / 0x12(对比度) / 0x8A(饱和度)。
-- 公式（与原版同族）：`v = ((i/255)^(1/γ) − 0.5) × (对比度+100)/100 + 0.5 + 亮度/200`，逐通道生成 256 级 LUT。
-- 基线保护：启动时捕获每屏当前 LUT 作为基线，调节曲线在基线上复合采样——"重置"精确还原系统 ICC/vcgt 校准，而非写入线性表。
-
-## 许可证
+## License
 
 [MIT](LICENSE)
